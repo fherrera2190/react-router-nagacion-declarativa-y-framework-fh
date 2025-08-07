@@ -1,10 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { Link, Outlet } from "react-router";
+import { Link, Outlet, useNavigate } from "react-router";
 import { ContactList } from "../components/ContactList";
 import { ContactDetails } from "../components/contact-details/ContactDetails";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { checkAuth } from "@/fake/fake-data";
 
 export default function ChatLayout() {
+  const querClient = useQueryClient();
+  const navigate = useNavigate();
+  const onLogout = () => {
+    localStorage.removeItem("token");
+    querClient.invalidateQueries({ queryKey: ["user"] });
+    navigate("/auth", { replace: true });
+  };
+  const { data: user } = useQuery({
+    queryKey: ["user"],
+    queryFn: () => {
+      const token = localStorage.getItem("token");
+      return checkAuth(token ?? "");
+    },
+  });
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
@@ -14,11 +30,21 @@ export default function ChatLayout() {
             <div className="h-6 w-6 rounded-full bg-primary" />
 
             <Link to="/chat">
-              <span className="font-semibold">NexTalk</span>
+              <span className="font-semibold">{user?.name ?? "..."} </span>
             </Link>
           </div>
         </div>
         <ContactList />
+
+        <div className="p-4 border-t ">
+          <Button
+            variant="destructive"
+            className="w-full cursor-pointer"
+            onClick={onLogout}
+          >
+            Logout
+          </Button>
+        </div>
       </div>
 
       {/* Main Content */}
