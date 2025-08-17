@@ -1,5 +1,5 @@
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { NavLink } from "react-router";
+import { NavLink, useParams } from "react-router";
 import { Button } from "~/components/ui/button";
 import type { Client } from "../interfaces/chat.interface";
 
@@ -8,6 +8,8 @@ interface Props {
 }
 
 export const ContactList = ({ clients }: Props) => {
+  const { id } = useParams();
+
   return (
     <ScrollArea className="h-[calc(100vh-120px)]">
       <div className="space-y-4 p-4">
@@ -18,16 +20,30 @@ export const ContactList = ({ clients }: Props) => {
               <NavLink
                 key={client.id}
                 to={`/chat/client/${client.id}`}
-                className={({ isActive }) =>
+                className={({ isActive, isPending }) =>
                   isActive
-                    ? "w-full my-2 justify-start flex items-center gap-2 bg-primary/10 text-primary transition-colors duration-200 rounded-2xl"
+                    ? "w-full my-2 justify-start flex items-center gap-2 bg-blue-500 text-primary transition-colors duration-200 rounded-2xl"
+                    : isPending
+                    ? "w-full my-2 justify-start flex items-center gap-2 bg-muted/10 text-muted transition-colors duration-200 rounded-2xl"
                     : "w-full my-2 justify-start flex items-center gap-2"
                 }
               >
-                <div className="h-6 w-6 rounded-full bg-green-500 mr-2 flex-shrink-0 flex items-center justify-center text-white text-xs">
+                <div
+                  className={
+                    id === client.id
+                      ? "h-6 w-6 rounded-full bg-green-500 mr-2 flex-shrink-0 flex items-center justify-center text-black text-xs"
+                      : "h-6 w-6 rounded-full bg-gray-500 mr-2 flex-shrink-0 flex items-center justify-center text-white text-xs"
+                  }
+                >
                   {client.name[0] + client.name.split(" ")[1][0]}
                 </div>
-                {client.name}
+                <span
+                  className={
+                    id === client.id ? "text-black" : "text-muted-foreground"
+                  }
+                >
+                  {client.name}
+                </span>
               </NavLink>
             ))}
           </div>

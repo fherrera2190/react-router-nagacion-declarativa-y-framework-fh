@@ -1,11 +1,32 @@
+import { useLoaderData, useParams } from "react-router";
 import { ContactInformation } from "./ContactInformation";
 import { ContactInformationSkeleton } from "./ContactInformationSkeleton";
 import { NoContactSelected } from "./NoContactSelected";
+import type { Client } from "~/chat/interfaces/chat.interface";
+import { useNavigation } from "react-router";
 
-export const ContactInformationCard = () => {
-  return <NoContactSelected />;
+interface Props {
+  client?: Client;
+}
 
-  return <ContactInformationSkeleton />;
+export const ContactInformationCard = ({ client }: Props) => {
+  const { id } = useParams();
 
-  return <ContactInformation />;
+  //const { clients } = useLoaderData<{ clients: Client[] }>();
+  const { state } = useNavigation();
+  const isPending = state === "loading" || state === "submitting";
+
+  //console.log({ isPending, state });
+
+  if (client) {
+    return <ContactInformation client={client} />;
+  }
+
+  if (isPending) return <ContactInformationSkeleton />;
+
+  if (!id) return <NoContactSelected />;
+
+  if (!client) return <NoContactSelected />;
+
+  return <ContactInformation client={client} />;
 };
